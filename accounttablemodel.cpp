@@ -24,9 +24,9 @@ void AccountTableModel::changeName(int id, const QString &name)
     }
 
     if (!setData(index(0, 1), name)) {
-        qWarning() << "Fail to change name in " << tableName() + ":" << lastError();
+        qWarning() << "Fail to change name in" << tableName() + ":" << lastError();
     } else {
-        qInfo() << "Account id " << id << "in " << tableName() + ": name changed to " << name;
+        qInfo() << "Account id" << id << "in" << tableName() + ": name changed to " << name;
     }
 
     setFilter("");
@@ -47,9 +47,9 @@ void AccountTableModel::changePassword(int id, const QString &password)
     }
 
     if (!setData(index(0, 2), password)) {
-        qWarning() << "Fail to change password " << tableName() + ":" << lastError();
+        qWarning() << "Fail to change password" << tableName() + ":" << lastError();
     } else {
-        qInfo() << "Account id " << id << "in " << tableName() + ": password changed";
+        qInfo() << "Account id" << id << "in" << tableName() + ": password changed";
     }
 
     setFilter("");
