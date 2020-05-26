@@ -76,7 +76,10 @@ public:
                 return q.lastError();
 
             QStringList genres;
-            //genres << ;
+            genres << "马克思主义、列宁主义、毛泽东思想" << "哲学" << "社会科学总论" << "政治、法律" << "军事" << "经济" << "文化、科学、教育、体育"
+                   << "语言、文字" << "文学" << "艺术" << "历史、地理" << "自然科学总论" << "数理科学和化学" << "天文学、地球科学"
+                   << "生物科学" << "医药、卫生" << "农业科学" << "工业技术" << "交通运输" << "航空、航天" << "环境科学"
+                   << "综合性图书";
 
             for (int id = 0; id < genres.size(); ++id) {
                 error = addEntry(q, id, genres.at(id));
@@ -118,9 +121,9 @@ private:
 
     const QString createAdmin = "create table admin(id integer primary key, password varchar, name varchar)";
 
-    const QString createBook = "create table book(bookId, integer, bookName varchar, genre varchar, state integer)";
+    const QString createBook = "create table book(bookId, integer, bookName varchar, genre integer, state integer)";
 
-    const QString createRecord = "create table record(bookId integer, bookName varchar, genre varchar, "
+    const QString createRecord = "create table record(bookId integer, bookName varchar, genre integer, "
                                                   "userId integer, userName varchar, borrowDate date, returnDate date)";
 
     const QString createRecordStates = "create table recordStates(id integer primary key, state varchar)";
