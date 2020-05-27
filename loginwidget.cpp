@@ -1,11 +1,8 @@
 #include "loginwidget.h"
 #include "constants.h"
-#include <QDebug>
 
-#include <cassert>
-
-LoginWidget::LoginWidget(QWidget *parent, QSharedPointer<AccountTableModel> readerTable,
-                         QSharedPointer<AccountTableModel> adminTable)
+LoginWidget::LoginWidget(QSharedPointer<AccountTableModel> readerTable,
+                         QSharedPointer<AccountTableModel> adminTable, QWidget *parent)
     : QDialog(parent), readerTable(readerTable), adminTable(adminTable)
 {
     QLabel *welcomeLabel = new QLabel(tr("欢迎"), this);
@@ -70,7 +67,7 @@ LoginWidget::LoginWidget(QWidget *parent, QSharedPointer<AccountTableModel> read
     setWindowTitle(tr("登录"));
     resize(INITIAL_DIALOG_SIZE);
 
-    registerWidget = new RegisterWidget(this, readerTable);
+    registerWidget = new RegisterWidget(readerTable, this);
 
     connect(loginButton, &QPushButton::clicked, this, &LoginWidget::judgeLogin);
     connect(registerButton, &QPushButton::clicked, registerWidget, &RegisterWidget::show);
