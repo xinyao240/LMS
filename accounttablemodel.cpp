@@ -12,6 +12,8 @@ AccountTableModel::AccountTableModel(const QString &type, QObject *parent)
 
 void AccountTableModel::changeName(int id, const QString &name)
 {
+    const QString filter = this->filter();
+
     setFilter(QString("id = %1").arg(id));
     select();
 
@@ -29,12 +31,14 @@ void AccountTableModel::changeName(int id, const QString &name)
         qInfo() << "Account id" << id << "in" << tableName() + ": name changed to " << name;
     }
 
-    setFilter("");
+    setFilter(filter);
     select(); //还原
 }
 
 void AccountTableModel::changePassword(int id, const QString &password)
 {
+    const QString oldFilter = this->filter();
+
     setFilter(QString("id = %1").arg(id));
     select();
 
@@ -52,7 +56,7 @@ void AccountTableModel::changePassword(int id, const QString &password)
         qInfo() << "Account id" << id << "in" << tableName() + ": password changed";
     }
 
-    setFilter("");
+    setFilter(oldFilter);
     select();
 }
 

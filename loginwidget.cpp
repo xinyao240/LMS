@@ -92,8 +92,11 @@ void LoginWidget::judgeLogin()
     int id = QVariant(idEdit->text()).toInt();
 
     const QString password = passwordEdit->text();
+
+    const QString oldFilter = tablePointer->filter();
     tablePointer->setFilter(QString("id = %1").arg(id));
     tablePointer->select();
+
     if  (tablePointer->rowCount() == 0) {
         QMessageBox::warning(this, tr("ID不存在"), tr("请重新输入ID"));
         return;
@@ -106,7 +109,7 @@ void LoginWidget::judgeLogin()
     }
     const QString correctPassword = tablePointer->data(tablePointer->index(0, 1)).toString();
 
-    tablePointer->setFilter("");
+    tablePointer->setFilter(oldFilter);
     tablePointer->select();
     // restore
 
