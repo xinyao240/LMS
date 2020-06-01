@@ -31,7 +31,7 @@ HEADERS += \
     registerwidget.h
 
 TRANSLATIONS += \
-    untitled3_zh_CN.ts
+    LMS_zh_CN.ts
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
