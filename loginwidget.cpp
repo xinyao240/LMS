@@ -1,11 +1,8 @@
 #include "loginwidget.h"
 #include "constants.h"
-#include <QDebug>
 
-#include <cassert>
-
-LoginWidget::LoginWidget(QWidget *parent, QSharedPointer<AccountTableModel> readerTable,
-                         QSharedPointer<AccountTableModel> adminTable)
+LoginWidget::LoginWidget(QSharedPointer<AccountTableModel> readerTable,
+                         QSharedPointer<AccountTableModel> adminTable, QWidget *parent)
     : QDialog(parent), readerTable(readerTable), adminTable(adminTable)
 {
     QLabel *welcomeLabel = new QLabel(tr("欢迎"), this);
@@ -70,7 +67,7 @@ LoginWidget::LoginWidget(QWidget *parent, QSharedPointer<AccountTableModel> read
     setWindowTitle(tr("登录"));
     resize(INITIAL_DIALOG_SIZE);
 
-    registerWidget = new RegisterWidget(this, readerTable);
+    registerWidget = new RegisterWidget(readerTable, this);
 
     connect(loginButton, &QPushButton::clicked, this, &LoginWidget::judgeLogin);
     connect(registerButton, &QPushButton::clicked, registerWidget, &RegisterWidget::show);
@@ -95,8 +92,11 @@ void LoginWidget::judgeLogin()
     int id = QVariant(idEdit->text()).toInt();
 
     const QString password = passwordEdit->text();
+
+    const QString oldFilter = tablePointer->filter();
     tablePointer->setFilter(QString("id = %1").arg(id));
     tablePointer->select();
+
     if  (tablePointer->rowCount() == 0) {
         QMessageBox::warning(this, tr("ID不存在"), tr("请重新输入ID"));
         return;
@@ -109,7 +109,7 @@ void LoginWidget::judgeLogin()
     }
     const QString correctPassword = tablePointer->data(tablePointer->index(0, 1)).toString();
 
-    tablePointer->setFilter("");
+    tablePointer->setFilter(oldFilter);
     tablePointer->select();
     // restore
 

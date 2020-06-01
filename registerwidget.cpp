@@ -2,8 +2,9 @@
 #include "loginwidget.h"
 #include "constants.h"
 
-RegisterWidget::RegisterWidget(QWidget *parent, QSharedPointer<AccountTableModel> readerTable)
-    : QDialog(parent), readerTable(readerTable)
+RegisterWidget::RegisterWidget(QSharedPointer<AccountTableModel> readerTable,
+                               LoginWidget *loginWidget, QWidget *parent)
+    : QDialog(parent), readerTable(readerTable), loginWidget(loginWidget)
 {
     QLabel *nameLabel = new QLabel(tr("姓名"), this);
     QLabel *passwordLabel = new QLabel(tr("密码"), this);
@@ -58,13 +59,11 @@ RegisterWidget::RegisterWidget(QWidget *parent, QSharedPointer<AccountTableModel
     timer->setInterval(100);
 
     registerMessage = new QMessageBox(QMessageBox::Information, tr("注册成功"), "", QMessageBox::Ok);
-    registerMessage->setModal(true);
 
     connect(timer, &QTimer::timeout, this, &RegisterWidget::updateRegisterButton);
     connect(registerButton, &QPushButton::clicked, this, &RegisterWidget::judgeRegister);
     connect(returnButton, &QPushButton::clicked, this, &RegisterWidget::clearAndBack);
-    connect(this, &RegisterWidget::accountCreated, dynamic_cast<LoginWidget *>(parent), &LoginWidget::autoFill);
-    connect(registerMessage, &QMessageBox::accepted, this, &RegisterWidget::clearAndBack);
+    connect(this, &RegisterWidget::accountCreated, loginWidget, &LoginWidget::autoFill);
 }
 
 //restart timer after shown
@@ -110,7 +109,9 @@ void RegisterWidget::judgeRegister()
     }
     emit accountCreated(newId, password);
     registerMessage->setText(tr("您的ID是：%1").arg(newId));
-    registerMessage->show();
+
+    if (registerMessage->exec() == QMessageBox::Ok)
+        clearAndBack();
 }
 
 void RegisterWidget::clearAndBack()
@@ -120,5 +121,5 @@ void RegisterWidget::clearAndBack()
     passwordEdit->clear();
     reinputEdit->clear();
     this->hide();
-    dynamic_cast<LoginWidget *>(parent())->show();
+    loginWidget->show();
 }

@@ -12,8 +12,8 @@ class LoginWidget : public QDialog
     Q_OBJECT
     friend class RegisterWidget; // 声明为友元访问私有槽
 public:
-    LoginWidget(QWidget *parent = nullptr, QSharedPointer<AccountTableModel> readerTable = nullptr,
-                            QSharedPointer<AccountTableModel> adminTable = nullptr);
+    LoginWidget(QSharedPointer<AccountTableModel> readerTable,
+            QSharedPointer<AccountTableModel> adminTable, QWidget *parent = nullptr);
 
 private slots:
     void autoFill(int id, const QString &password); // auto fill after account created 注册成功后自动填充

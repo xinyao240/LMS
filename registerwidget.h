@@ -6,11 +6,14 @@
 #include <QtWidgets>
 #include <QSharedPointer>
 
+QT_FORWARD_DECLARE_CLASS(LoginWidget)
+
 class RegisterWidget : public QDialog
 {
     Q_OBJECT
 public:
-    RegisterWidget(QWidget *parent = nullptr, QSharedPointer<AccountTableModel> readerTable = nullptr);
+    RegisterWidget(QSharedPointer<AccountTableModel> readerTable, LoginWidget *loginWidget,
+                    QWidget *parent = nullptr);
     void showEvent(QShowEvent *) override;
 
 signals:
@@ -27,6 +30,7 @@ private:
     QTimer *timer;
     QPushButton *registerButton;
     QMessageBox *registerMessage;
+    LoginWidget *loginWidget;
 };
 
 #endif // REGISTERWIDGET_H

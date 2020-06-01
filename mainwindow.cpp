@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     readerTable = QSharedPointer<AccountTableModel>(new AccountTableModel("reader"));
     adminTable = QSharedPointer<AccountTableModel>(new AccountTableModel("admin"));
 
-    loginWidget = new LoginWidget(this, readerTable, adminTable);
+    loginWidget = new LoginWidget(readerTable, adminTable);//pop up the login widget as an independent window
 
     connect(loginWidget, &LoginWidget::loginSuccessfully, this, &MainWindow::OpenInterface);
 
