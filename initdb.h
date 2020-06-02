@@ -121,7 +121,7 @@ private:
 
     const QString createAdmin = "create table admin(id integer primary key, password varchar, name varchar)";
 
-    const QString createBook = "create table book(bookId, integer, bookName varchar, author varchar, genre integer, state integer)";
+    const QString createBook = "create table book(bookId integer, bookName varchar, author varchar, genre integer, state integer)";
 
     const QString createRecord = "create table record(bookId integer, bookName varchar, genre integer, "
                                                   "userId integer, userName varchar, borrowDate date, returnDate date)";
