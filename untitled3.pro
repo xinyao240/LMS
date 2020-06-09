@@ -17,17 +17,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     accounttablemodel.cpp \
+    booktablemodel.cpp \
+    borrowreturntab.cpp \
     loginwidget.cpp \
     main.cpp \
     mainwindow.cpp \
+    newreadertab.cpp \
+    overtimerecordtab.cpp \
+    readerinfotab.cpp \
+    readermanagementmodel.cpp \
+    readermanagementwidget.cpp \
     registerwidget.cpp
 
 HEADERS += \
     accounttablemodel.h \
+    booktablemodel.h \
+    borrowreturntab.h \
     constants.h \
     initdb.h \
     loginwidget.h \
     mainwindow.h \
+    newreadertab.h \
+    overtimerecordtab.h \
+    readerinfotab.h \
+    readermanagementmodel.h \
+    readermanagementwidget.h \
     registerwidget.h
 
 TRANSLATIONS += \
@@ -37,3 +51,5 @@ TRANSLATIONS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+FORMS +=

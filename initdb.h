@@ -108,6 +108,21 @@ public:
                 return q.lastError();
         }
 
+        if (!tables.contains("newReader")) {
+            if (!q.exec(createNewReader))
+                return q.lastError();
+            if (!q.exec("insert into newReader values(0,'123456','Lihua')"))  //insert test data
+                return q.lastError();
+
+        }
+
+        if (!tables.contains("overtimeRecord")) {
+            if (!q.exec(createOvertimeRecord))
+                return q.lastError();
+            //if (!q.exec("insert into overtimeRecord values(0, 'bookName', 1, 2, 'userName', borrowDate date, returnDate date)"))  //insert test data
+            //    return q.lastError();
+        }
+
         return QSqlError();
     }
 
@@ -134,6 +149,14 @@ private:
 
     const QString createGenres = "create table genres(id integer primary key, genre varchar)";
     const QString insertGenres = "insert into genres(id, genre) values(?, ?)";
+
+    const QString createNewReader="create table newReader(id integer primary key,password varchar,name varchar)";
+    const QString insertNewReader="insert into newReader(id,password,name) values(?,?,?)";
+
+    const QString createOvertimeRecord="create table overtimeRecord(bookId integer, bookName varchar, genre integer, "
+                                       "userId integer, userName varchar, borrowDate date, returnDate date)";
+    const QString insertOvertimeRecord="insert into overtimeRecord(bookId, bookName, genre, "
+                                       "userId, userName, borrowDate, returnDate) values(?,?,?,?,?,?,?)";
 
     QSqlDatabase db;
 
