@@ -25,7 +25,7 @@ void AccountTableModel::changeName(int id, const QString &name)
         return;
     }
 
-    if (!setData(index(0, 1), name) && !submitAll()) {
+    if (!setData(index(0, 1), name) || !submitAll()) {
         qWarning() << "Fail to change name in" << tableName() + ":" << lastError();
     } else {
         qInfo() << "Account id" << id << "in" << tableName() + ": name changed to " << name;
@@ -50,7 +50,7 @@ void AccountTableModel::changePassword(int id, const QString &password)
         return;
     }
 
-    if (!setData(index(0, 2), password) && !submitAll()) {
+    if (!setData(index(0, 2), password) || !submitAll()) {
         qWarning() << "Fail to change password" << tableName() + ":" << lastError();
     } else {
         qInfo() << "Account id" << id << "in" << tableName() + ": password changed";
@@ -80,4 +80,31 @@ int AccountTableModel::addEntry(const QString &name, const QString &password)
 
     //submitAll();
     return newId;
+}
+
+QVariant AccountTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal) {
+        if (role == Qt::DisplayRole) {
+            if (section >= 0 && section < columnCount()) {
+                QStringList header;
+                header << tr("id") << tr("密码") << tr("姓名"); // translation
+                return QVariant(header.at(section));
+            } else {
+                qWarning() << "Wrong header index for accountTable" << tableName() + ":"  << section;
+                return QVariant();
+            }
+        } else {
+            if (section >= 0 && section < columnCount()) {
+                QStringList header;
+                header << "id" << "password" << "name";
+                return QVariant(header.at(section));
+            } else {
+                qWarning() << "Wrong header index for accountTable" << tableName() + ":"  << section;
+                return QVariant();
+            }
+        }
+    } else {
+        return QSqlTableModel::headerData(section, orientation, role);
+    }
 }

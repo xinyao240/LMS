@@ -18,6 +18,7 @@ public:
 
     AccountTableModel(const QString &type, QObject *parent = nullptr);
     int addEntry(const QString &name, const QString &password); // add an entry and returns the id
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 public slots:
     void changeName(int id, const QString &name);
