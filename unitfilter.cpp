@@ -1,7 +1,5 @@
 #include "unitfilter.h"
 
-#include <algorithm>
-
 UnitFilter::UnitFilter(QSharedPointer<QSqlTableModel> model, QWidget *parent)
     :QWidget(parent), model(model)
 {
@@ -10,20 +8,23 @@ UnitFilter::UnitFilter(QSharedPointer<QSqlTableModel> model, QWidget *parent)
     mainLayout->addWidget(checkBox);
 
     QSizePolicy sizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    QRegExpValidator *numberValidator = new QRegExpValidator(QRegExp("[0-9]*"), this);
+    // set parent to this to prevent from deletion
 
     for (int index = 0; index < model->columnCount(); ++index) {
         const QString text = model->headerData(index, Qt::Horizontal, Qt::DisplayRole).toString();
 
         QLabel *label = new QLabel(text + ":", this);
+
         editors.push_back(new QLineEdit(this));
-        editors.back()->setSizePolicy(sizePolicy);
+        QLineEdit* lineEdit = dynamic_cast<QLineEdit *>(editors.back());
+        lineEdit->setSizePolicy(sizePolicy);
+        if (model->record().field(index).type() == QVariant::Int)
+            lineEdit->setValidator(numberValidator); // only number allowed to input
 
         mainLayout->addWidget(label);
         mainLayout->addWidget(editors.back());
     }
-
-    QLineEdit* idEdit = dynamic_cast<QLineEdit *>(*editors.begin());
-    idEdit->setValidator(new QRegExpValidator(QRegExp("[0-9]*"), idEdit)); // only number allowed to input
 
     setLayout(mainLayout);
 }
@@ -35,20 +36,23 @@ QString UnitFilter::getFilter()
     QString filter;
     bool firstFlag = true; // judge whether to add "and"
 
-    QLineEdit *idEdit = dynamic_cast<QLineEdit *>(editors[0]);
-
-    if (!idEdit->text().isEmpty()) { // handle id first
-        filter += model->headerData(0, Qt::Horizontal, -1).toString() + "=" + idEdit->text();
-        firstFlag = false;
-    }
-
-    for (int index = 1; index < editors.size(); ++index) {
+    for (int index = 0; index < editors.size(); ++index) {
         if (strcmp(editors[index]->metaObject()->className(), "QLineEdit") == 0) {
             QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(editors[index]);
 
             if (!lineEdit->text().isEmpty()) {
-                filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
-                            + " like \'"  + lineEdit->text() + "\'";
+                QVariant::Type dataType = model->record().field(index).type(); // get type of specific index
+
+                if (dataType == QVariant::Int) {
+                    filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
+                                + "=" + lineEdit->text();
+                } else if (dataType == QVariant::String) {
+                    filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
+                                + " like \'"  + lineEdit->text() + "\'";
+                } else {
+                    qWarning() << "In table" << QString(model->tableName()) << ":" << "Unknown type"
+                               << QString(dataType);
+                }
             }
         } else {
             qWarning() << "Illegal pointer in unit filter";
@@ -71,6 +75,8 @@ UnitFilterForRelation::UnitFilterForRelation(QSharedPointer<QSqlRelationalTableM
     mainLayout->addWidget(checkBox);
 
     QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    QRegExpValidator *numberValidator = new QRegExpValidator(QRegExp("[0-9]*"), this);
+    // set parent to this to prevent from deletion
 
     for (int index = 0; index < model->columnCount(); ++index) {
         const QString text = model->headerData(index, Qt::Horizontal, Qt::DisplayRole).toString();
@@ -100,7 +106,10 @@ UnitFilterForRelation::UnitFilterForRelation(QSharedPointer<QSqlRelationalTableM
             mainLayout->addWidget(comboBox);
         } else { // if not
             editors.push_back(new QLineEdit(this));
-            editors.back()->setSizePolicy(sizePolicy);
+            QLineEdit* lineEdit = dynamic_cast<QLineEdit *>(editors.back());
+            lineEdit->setSizePolicy(sizePolicy);
+            if (model->record().field(index).type() == QVariant::Int)
+                lineEdit->setValidator(numberValidator); // only number allowed to input
 
             mainLayout->addWidget(label);
             mainLayout->addWidget(editors.back());
@@ -127,8 +136,18 @@ QString UnitFilterForRelation::getFilter()
             QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(editors[index]);
 
             if (!lineEdit->text().isEmpty()) {
-                filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
-                            + " like \'"  + lineEdit->text() + "\'";
+                QVariant::Type dataType = model->record().field(index).type(); // get type of specific index
+
+                if (dataType == QVariant::Int) {
+                    filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
+                                + "=" + lineEdit->text();
+                } else if (dataType == QVariant::String) {
+                    filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
+                                + " like \'"  + lineEdit->text() + "\'";
+                } else {
+                    qWarning() << "In table" << QString(model->tableName()) << ":" << "Unknown type"
+                               << QString(dataType);
+                }
             }
         } else if (strcmp(editors[index]->metaObject()->className(), "QComboBox") == 0) {
             QComboBox *comboBox = dynamic_cast<QComboBox *>(editors[index]);
