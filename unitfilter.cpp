@@ -7,9 +7,10 @@ UnitFilter::UnitFilter(QSharedPointer<QSqlTableModel> model, QWidget *parent)
     checkBox = new QCheckBox(this);
     mainLayout->addWidget(checkBox);
 
-    QSizePolicy sizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
-    QRegExpValidator *numberValidator = new QRegExpValidator(QRegExp("[0-9]*"), this);
+    const QSizePolicy sizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    const QRegExpValidator *numberValidator = new QRegExpValidator(QRegExp("[0-9]*"), this);
     // set parent to this to prevent from deletion
+    const QSqlRecord &record = model->record(); // used to judge column type and name
 
     for (int index = 0; index < model->columnCount(); ++index) {
         const QString text = model->headerData(index, Qt::Horizontal, Qt::DisplayRole).toString();
@@ -19,7 +20,7 @@ UnitFilter::UnitFilter(QSharedPointer<QSqlTableModel> model, QWidget *parent)
         editors.push_back(new QLineEdit(this));
         QLineEdit* lineEdit = dynamic_cast<QLineEdit *>(editors.back());
         lineEdit->setSizePolicy(sizePolicy);
-        if (model->record().field(index).type() == QVariant::Int)
+        if (record.field(index).type() == QVariant::Int)
             lineEdit->setValidator(numberValidator); // only number allowed to input
 
         mainLayout->addWidget(label);
@@ -35,19 +36,20 @@ QString UnitFilter::getFilter()
 {
     QString filter;
     bool firstFlag = true; // judge whether to add "and"
+    const QSqlRecord &record = model->record();
 
     for (int index = 0; index < editors.size(); ++index) {
         if (strcmp(editors[index]->metaObject()->className(), "QLineEdit") == 0) {
             QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(editors[index]);
 
             if (!lineEdit->text().isEmpty()) {
-                QVariant::Type dataType = model->record().field(index).type(); // get type of specific index
+                QVariant::Type dataType = record.field(index).type(); // get type of specific index
 
                 if (dataType == QVariant::Int) {
-                    filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
+                    filter += (firstFlag ? firstFlag = false, "" : " and ") + record.field(index).name()
                                 + "=" + lineEdit->text();
                 } else if (dataType == QVariant::String) {
-                    filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
+                    filter += (firstFlag ? firstFlag = false, "" : " and ") + record.field(index).name()
                                 + " like \'"  + lineEdit->text() + "\'";
                 } else {
                     qWarning() << "In table" << QString(model->tableName()) << ":" << "Unknown type"
@@ -77,6 +79,7 @@ UnitFilterForRelation::UnitFilterForRelation(QSharedPointer<QSqlRelationalTableM
     QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     QRegExpValidator *numberValidator = new QRegExpValidator(QRegExp("[0-9]*"), this);
     // set parent to this to prevent from deletion
+    const QSqlRecord &record = model->record();
 
     for (int index = 0; index < model->columnCount(); ++index) {
         const QString text = model->headerData(index, Qt::Horizontal, Qt::DisplayRole).toString();
@@ -108,7 +111,7 @@ UnitFilterForRelation::UnitFilterForRelation(QSharedPointer<QSqlRelationalTableM
             editors.push_back(new QLineEdit(this));
             QLineEdit* lineEdit = dynamic_cast<QLineEdit *>(editors.back());
             lineEdit->setSizePolicy(sizePolicy);
-            if (model->record().field(index).type() == QVariant::Int)
+            if (record.field(index).type() == QVariant::Int)
                 lineEdit->setValidator(numberValidator); // only number allowed to input
 
             mainLayout->addWidget(label);
@@ -123,26 +126,20 @@ QString UnitFilterForRelation::getFilter()
 {
     QString filter;
     bool firstFlag = true; // judge whether to add "and"
+    const QSqlRecord &record = model->record();
 
-    QLineEdit *idEdit = dynamic_cast<QLineEdit *>(editors[0]);
-
-    if (!idEdit->text().isEmpty()) { // handle id first
-        filter += model->headerData(0, Qt::Horizontal, -1).toString() + "=" + idEdit->text();
-        firstFlag = false;
-    }
-
-    for (int index = 1; index < editors.size(); ++index) {
+    for (int index = 0; index < editors.size(); ++index) {
         if (strcmp(editors[index]->metaObject()->className(), "QLineEdit") == 0) {
             QLineEdit *lineEdit = dynamic_cast<QLineEdit *>(editors[index]);
 
             if (!lineEdit->text().isEmpty()) {
-                QVariant::Type dataType = model->record().field(index).type(); // get type of specific index
+                QVariant::Type dataType = record.field(index).type(); // get type of specific index
 
                 if (dataType == QVariant::Int) {
-                    filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
+                    filter += (firstFlag ? firstFlag = false, "" : " and ") + record.field(index).name()
                                 + "=" + lineEdit->text();
                 } else if (dataType == QVariant::String) {
-                    filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
+                    filter += (firstFlag ? firstFlag = false, "" : " and ") + record.field(index).name()
                                 + " like \'"  + lineEdit->text() + "\'";
                 } else {
                     qWarning() << "In table" << QString(model->tableName()) << ":" << "Unknown type"
@@ -153,7 +150,7 @@ QString UnitFilterForRelation::getFilter()
             QComboBox *comboBox = dynamic_cast<QComboBox *>(editors[index]);
 
             if (comboBox->currentIndex() >= 0) {
-                filter += (firstFlag ? firstFlag = false, "" : " and ") + model->headerData(index, Qt::Horizontal, -1).toString()
+                filter += (firstFlag ? firstFlag = false, "" : " and ") + record.field(index).name()
                             + "=" + QVariant(comboBox->currentIndex()).toString();
             }
         } else {

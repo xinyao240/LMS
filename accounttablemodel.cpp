@@ -82,29 +82,3 @@ int AccountTableModel::addEntry(const QString &name, const QString &password)
     return newId;
 }
 
-QVariant AccountTableModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (orientation == Qt::Horizontal) {
-        if (role == Qt::DisplayRole) {
-            if (section >= 0 && section < columnCount()) {
-                QStringList header;
-                header << tr("id") << tr("密码") << tr("姓名"); // translation
-                return QVariant(header.at(section));
-            } else {
-                qWarning() << "Wrong header index for accountTable" << tableName() + ":"  << section;
-                return QVariant();
-            }
-        } else {
-            if (section >= 0 && section < columnCount()) {
-                QStringList header;
-                header << "id" << "password" << "name";
-                return QVariant(header.at(section));
-            } else {
-                qWarning() << "Wrong header index for accountTable" << tableName() + ":"  << section;
-                return QVariant();
-            }
-        }
-    } else {
-        return QSqlTableModel::headerData(section, orientation, role);
-    }
-}

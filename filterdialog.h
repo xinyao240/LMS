@@ -1,3 +1,10 @@
+/** This dialog is used to provide feature of advanced research.
+ *  To use it, just connect filter signal to your slot receiving a QString,
+ *  and call setFilter function in your model.
+ *
+ *  EXTRA: Print the filter and lastError in model is convenient for debug.
+ * */
+
 #ifndef FILTERDIALOG_H
 #define FILTERDIALOG_H
 
