@@ -50,7 +50,7 @@ QString UnitFilter::getFilter()
                                 + "=" + lineEdit->text();
                 } else if (dataType == QVariant::String) {
                     filter += (firstFlag ? firstFlag = false, "" : " and ") + record.field(index).name()
-                                + " like \'"  + lineEdit->text() + "\'";
+                                + " like \'"  + processFilterWord(lineEdit->text()) + "\'";
                 } else {
                     qWarning() << "In table" << QString(model->tableName()) << ":" << "Unknown type"
                                << QString(dataType);
@@ -67,6 +67,16 @@ QString UnitFilter::getFilter()
 UnitFilter* UnitFilter::generateNullCopy(QWidget *parent)
 {
     return new UnitFilter(model, parent);
+}
+
+QString UnitFilter::processFilterWord(QString &&word)
+{
+    QString ret = "%";
+    for (auto &ch : word) {
+        ret.push_back(ch);
+        ret.push_back("%");
+    }
+    return ret;
 }
 
 UnitFilterForRelation::UnitFilterForRelation(QSharedPointer<QSqlRelationalTableModel> model, QWidget *parent)
@@ -140,7 +150,7 @@ QString UnitFilterForRelation::getFilter()
                                 + "=" + lineEdit->text();
                 } else if (dataType == QVariant::String) {
                     filter += (firstFlag ? firstFlag = false, "" : " and ") + record.field(index).name()
-                                + " like \'"  + lineEdit->text() + "\'";
+                                + " like \'"  + processFilterWord(lineEdit->text()) + "\'";
                 } else {
                     qWarning() << "In table" << QString(model->tableName()) << ":" << "Unknown type"
                                << QString(dataType);
@@ -148,10 +158,11 @@ QString UnitFilterForRelation::getFilter()
             }
         } else if (strcmp(editors[index]->metaObject()->className(), "QComboBox") == 0) {
             QComboBox *comboBox = dynamic_cast<QComboBox *>(editors[index]);
+            QSqlRelation relation = model->relation(index);
 
-            if (comboBox->currentIndex() >= 0) {
-                filter += (firstFlag ? firstFlag = false, "" : " and ") + record.field(index).name()
-                            + "=" + QVariant(comboBox->currentIndex()).toString();
+            if (comboBox->currentIndex() >= 0) { // use alias of relation table
+                filter += (firstFlag ? firstFlag = false, "relTblAl_" : " and relTblAl_") + QVariant(index).toString() + "."
+                            + relation.indexColumn() + "=" + QVariant(comboBox->currentIndex()).toString();
             }
         } else {
             qWarning() << "Illegal pointer in unit filter";

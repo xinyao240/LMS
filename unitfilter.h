@@ -19,6 +19,8 @@ protected:
     QList<QWidget *> editors;
     QCheckBox *checkBox;
 
+    QString processFilterWord(QString &&word); // add wildcard
+
 private:
     QSharedPointer<QSqlTableModel> model;
 };
